@@ -1,0 +1,162 @@
+#include "Controlador.h"
+#include "Sensor.h"
+#include <vector>
+#include <iostream>
+using namespace std;
+
+int main() {
+    vector<Controlador*> controladores;
+    vector<Sensor*> sensores;
+
+    int opcion;
+    do {
+        cout << "Menu:\n";
+        cout << "1. Registrar Controlador\n";
+        cout << "2. Registrar Sensor\n";
+        cout << "3. Asociar Sensor a Controlador\n";
+        cout << "4. Mostrar Estado del Sistema\n";
+        cout << "5. Eliminar Sensor\n";
+        cout << "6. Cambiar Asociacion de Sensor\n";
+        cout << "7. Salir\n";
+        cout << "Seleccione una opcion: ";
+        cin >> opcion;
+
+        switch (opcion) {
+        case 1: {
+            string id, nombre;
+            cout << "ID del Controlador: ";
+            cin >> id;
+            cout << "Nombre del Controlador: ";
+            cin >> nombre;
+            controladores.push_back(new Controlador(id, nombre));
+            break;
+        }
+        case 2: {
+            string id, nombre;
+            cout << "ID del Sensor: ";
+            cin >> id;
+            cout << "Nombre del Sensor: ";
+            cin >> nombre;
+            sensores.push_back(new Sensor(id, nombre));
+            break;
+        }
+        case 3: {
+            string idControlador, idSensor;
+            cout << "ID del Controlador: ";
+            cin >> idControlador;
+            cout << "ID del Sensor: ";
+            cin >> idSensor;
+
+            Controlador* controlador = nullptr;
+            Sensor* sensor = nullptr;
+
+            for (auto& c : controladores) {
+                if (c->getId() == idControlador) {
+                    controlador = c;
+                    break;
+                }
+            }
+
+            for (auto& s : sensores) {
+                if (s->getId() == idSensor) {
+                    sensor = s;
+                    break;
+                }
+            }
+
+            if (controlador && sensor) {
+                controlador->registrarSensor(sensor);
+                cout << "sensor asociado correctamenete" << endl;
+            }
+            else {
+                cout << "Controlador o Sensor no encontrado.\n";
+            }
+         
+            break;
+        }
+        case 4: {
+            for (auto& controlador : controladores) {
+                controlador->mostrarEstado();
+            }
+            break;
+        }
+        case 5: {
+            string idSensor;
+            cout << "ID del Sensor a eliminar: ";
+            cin >> idSensor;
+
+            auto it = sensores.begin();
+            while (it != sensores.end()) {
+                if ((*it)->getId() == idSensor) {
+                    for (auto& controlador : controladores) {
+                        controlador->eliminarSensor(idSensor);
+                    }
+                    delete* it;
+                    it = sensores.erase(it);
+                    cout << "Sensor eliminado correctamente.\n";
+                }
+                else {
+                    ++it;
+                }
+            }
+            break;
+        }
+        case 6: {
+            string idSensor, idControladorActual, idControladorNuevo;
+            cout << "ID del Sensor: ";
+            cin >> idSensor;
+            cout << "ID del Controlador actual: ";
+            cin >> idControladorActual;
+            cout << "ID del Controlador nuevo: ";
+            cin >> idControladorNuevo;
+
+            Controlador* controladorActual = nullptr;
+            Controlador* controladorNuevo = nullptr;
+            Sensor* sensor = nullptr;
+
+            for (auto& c : controladores) {
+                if (c->getId() == idControladorActual) {
+                    controladorActual = c;
+                }
+                if (c->getId() == idControladorNuevo) {
+                    controladorNuevo = c;
+                }
+            }
+
+            for (auto& s : sensores) {
+                if (s->getId() == idSensor) {
+                    sensor = s;
+                    break;
+                }
+            }
+
+            if (controladorActual && controladorNuevo && sensor) {
+                controladorActual->eliminarSensor(idSensor);
+                controladorNuevo->registrarSensor(sensor);
+                cout << "Asociacion cambiada correctamente.\n";
+            }
+            else {
+                cout << "Controlador o Sensor no encontrado.\n";
+            }
+            
+            break;
+        }
+        case 7:
+            cout << "Saliendo del programa.\n";
+            break;
+        default:
+            cout << "Opcion no valida. Intente de nuevo.\n";
+        }
+    } while (opcion != 7);
+    
+    // Liberar memoria al finalizar
+    for (auto& controlador : controladores) {
+        delete controlador;
+    }
+    for (auto& sensor : sensores) {
+        delete sensor;
+    }
+
+
+    return 0;
+}
